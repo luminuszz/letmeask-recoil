@@ -1,8 +1,8 @@
-<div style="text-align: center;">
-<img src="images/readme.png" alt="logo"/>
-</div>
+![logo](./images/logo.svg)
 
 # letmeask
+
+![photo](./images/readme.png)
 
 ## Getting Started
 
