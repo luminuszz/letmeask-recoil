@@ -12,8 +12,8 @@ type UseAuthReturn = {
 
 export function useAuth(): UseAuthReturn {
   const firebase = useFirebase();
-  const [user, setUser] = useRecoilState(userState);
   const isLogged = useRecoilValue(userIsLogged);
+  const [user, setUser] = useRecoilState(userState);
 
   async function signWithGoogleSign() {
     try {

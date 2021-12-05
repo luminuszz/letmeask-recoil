@@ -8,7 +8,7 @@ import { formState, formErros } from '@/store/form.slice';
 type Params<InitialValues> = {
   initialValues: InitialValues;
   onSubmit: (values: InitialValues) => void | Promise<void>;
-  validationSchema: ObjectSchema<any>;
+  validationSchema?: ObjectSchema<any>;
 };
 
 type Return<InitialValues> = {

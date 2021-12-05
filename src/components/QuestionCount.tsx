@@ -16,7 +16,7 @@ const Container = styled('span', {
 export function QuestionCount() {
   const count = useRecoilValue(questionCount);
 
-  const message = count === 0 ? '' : `${count} pergunta(s)`;
+  const message = count === 0 ? 'Não há perguntas' : `${count} pergunta(s)`;
 
   return <Container>{message}</Container>;
 }

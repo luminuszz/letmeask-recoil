@@ -1,22 +1,17 @@
-import { GetServerSideProps } from 'next';
 import { useRouter } from 'next/router';
 
 import { FormEvent, useEffect, useState } from 'react';
-import {
-  useRecoilRefresher_UNSTABLE,
-  useRecoilState,
-  useSetRecoilState,
-} from 'recoil';
+import { useRecoilState } from 'recoil';
 
 import { Button } from '@/components/Button';
 import { CopyCode } from '@/components/CopyCode.';
+import { ExitRoomButton } from '@/components/ExitRoomButton';
 import { QuestionCount } from '@/components/QuestionCount';
 import { useAuth } from '@/hooks/useAuth';
 import { useFirebase } from '@/hooks/useFirabase';
+import { useLoading } from '@/hooks/useLoading';
 import { useToast } from '@/hooks/useToast';
-import { database } from '@/services/firebase';
-import type { Room } from '@/services/firebase/database';
-import { currentIdRoom, roomDetails } from '@/store/room.slice';
+import { roomDetails } from '@/store/room.slice';
 import {
   Main,
   Container,
@@ -26,17 +21,19 @@ import {
   TextArea,
   FormFooter,
   UserInfo,
+  HeaderActions,
 } from '@/styles/room.styles';
 
 export default function Room() {
-  const { user, isLogged } = useAuth();
+  const { user } = useAuth();
   const { database } = useFirebase();
-  const toast = useToast();
-  const {
-    query: { id },
-  } = useRouter();
+  const { isLoading, state } = useLoading();
+  const notify = useToast();
+  const router = useRouter();
+
   const [newQuestion, setNewQuestion] = useState('');
-  const setRoomDetails = useSetRecoilState(roomDetails);
+  const [room, setRoomDetails] = useRecoilState(roomDetails);
+  const id = router.query?.id as string;
 
   async function handleCreateNewQuestion(e: FormEvent) {
     try {
@@ -45,9 +42,11 @@ export default function Room() {
       if (!newQuestion.trim()) return;
 
       if (!user) {
-        toast.error('Você precisa estar logado para criar perguntas');
+        notify.error('Você precisa estar logado para criar perguntas');
         return;
       }
+
+      state.start();
 
       const question = {
         content: newQuestion,
@@ -63,11 +62,15 @@ export default function Room() {
 
       setNewQuestion('');
 
-      toast.success('Sua pergunta foi enviado !');
+      notify.success('Sua pergunta foi enviado !');
     } catch (e) {
-      toast.error('Ocorreu um erro ao criar a pergunta');
+      notify.error('Ocorreu um erro ao criar a pergunta');
+    } finally {
+      state.stop();
     }
   }
+
+  const handleExitRoom = () => router.push('/');
 
   useEffect(() => {
     database.collection('rooms').on(`${id}`, (room) => {
@@ -82,18 +85,22 @@ export default function Room() {
       <Header>
         <HeaderContent>
           <RoomImgLogo src="/logo.svg" />
-          <CopyCode />
+          <HeaderActions>
+            <CopyCode />
+            <ExitRoomButton onClick={handleExitRoom} />
+          </HeaderActions>
         </HeaderContent>
       </Header>
 
       <Main>
         <div className="room-title">
-          <h2>Sala de Node.js</h2>
+          <h2>{room?.roomName}</h2>
           <QuestionCount />
         </div>
 
         <form onSubmit={handleCreateNewQuestion}>
           <TextArea
+            disabled={isLoading}
             value={newQuestion}
             onChange={(e) => setNewQuestion(e.target.value)}
             placeholder="Oque você quer perguntar ?"
@@ -111,7 +118,7 @@ export default function Room() {
               </span>
             )}
 
-            <Button css={{ width: 'auto' }} type="submit">
+            <Button css={{ width: 'auto' }} type="submit" disabled={isLoading}>
               Enviar pergunta
             </Button>
           </FormFooter>

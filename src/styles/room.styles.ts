@@ -88,3 +88,10 @@ export const UserInfo = styled('div', {
     fontWeight: 500,
   },
 });
+
+export const HeaderActions = styled('div', {
+  display: 'flex',
+  alignItems: 'center',
+  justifyContent: 'flex-end',
+  flex: 1,
+});
