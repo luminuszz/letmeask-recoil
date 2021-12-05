@@ -1,5 +1,5 @@
 <div style="text-align: center;">
-<img src="./public/readme.png" alt="logo"/>
+<img src="images/readme.png" alt="logo"/>
 </div>
 
 # letmeask
